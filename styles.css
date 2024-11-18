@@ -3,7 +3,6 @@ body {
   font-weight: 400;
   font-style: normal;
   font-size: 18px;
-  height: 1000px;
   background-color: rgb(231, 225, 213) !important;
 }
 
@@ -11,6 +10,12 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /*main page*/
@@ -76,6 +81,7 @@ header a:hover {
   font-style: italic;
   color: rgb(134, 81, 134);
   font-weight: 200;
+  text-shadow: 2px 2px 8px #4e4747;
 }
 
 .sp-form {
@@ -85,8 +91,9 @@ header a:hover {
 }
 
 .sp-input {
-  width: 270px;
+  width: 350px;
   border: 1px solid rgb(101, 4, 101);
+  font-style: italic;
   border-right: 0;
   background-color: rgb(231, 225, 213);
   padding: 0.5em;
@@ -111,4 +118,19 @@ header a:hover {
 
 .sp-submit:hover {
   background-color: rgb(78, 6, 78);
+}
+
+/*cards*/
+
+.add-to-library {
+  border: none;
+  background-color: rgb(231, 225, 213);
+  color: rgb(101, 4, 101);
+  display: block;
+  font-size: 40px;
+  transition: 0.8s;
+}
+
+.add-to-library:hover {
+  color: black;
 }
