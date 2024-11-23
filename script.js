@@ -1,6 +1,32 @@
 $(document).ready(function () {
   console.log("hello world");
+  let library = [];
 
+  window.onload = function getLibraryFromMemory() {
+    if (sessionStorage.getItem("favBooks")) {
+      library = JSON.parse(sessionStorage.getItem("favBooks"));
+      console.log(sessionStorage);
+      console.log(library);
+      library.forEach((book) => {
+        let favBook = document.createElement("div");
+        favBook.classList.add("col-sm", "col-md-4", "col-lg-3");
+        favBook.innerHTML = `<div class="card" style="width: 18rem">
+            <img src="${book.image}" class="card-img-top" alt="..." />
+            <div class="card-body">
+              <h5 class="card-title">${book.title}</h5>
+              <p class="card-text">
+                ${book.author}
+              </p>
+              <a href="${book.link}" class="btn btn-primary">Go somewhere</a>
+            </div>
+      </div>`;
+        let favBooksContainer = document.querySelector("#favBooksContainer");
+        if (favBooksContainer) {
+          favBooksContainer.appendChild(favBook);
+        }
+      });
+    }
+  };
   //enabling tooltips with bootstrap
   const tooltipTriggerList = document.querySelectorAll(
     '[data-bs-toggle="tooltip"]'
@@ -20,9 +46,6 @@ $(document).ready(function () {
   let searchData;
   let books = [];
   let booksIds = [];
-  let bookId;
-  let library = [];
-
   //listener search button
   $(".sp-submit").click(function (e) {
     e.preventDefault();
@@ -157,26 +180,34 @@ $(document).ready(function () {
     let positionClick = event.target;
     if (positionClick.classList.contains("add-to-library")) {
       let selectedBookTitle = positionClick.getAttribute("data-title");
-      let selectedBookLink = positionClick.getAttribute("data-link");
-      let selectedBookImg = positionClick.getAttribute("data-img");
       let selectedBookAuthor = positionClick.getAttribute("data-author");
-      addToStorage(
+      let selectedBookImg = positionClick.getAttribute("data-img");
+      let selectedBookLink = positionClick.getAttribute("data-link");
+
+      let newFavourite = new Favourite(
         selectedBookTitle,
-        selectedBookLink,
         selectedBookAuthor,
-        selectedBookImg
+        selectedBookImg,
+        selectedBookLink
       );
+      /*saving the library in session storage, to be able to see the cards in the library page, 
+      even if the search page changes*/
+      library.push(newFavourite);
+      addLibraryToMemory();
       addCardToLibrary(
         selectedBookTitle,
-        selectedBookLink,
         selectedBookAuthor,
-        selectedBookImg
+        selectedBookImg,
+        selectedBookLink
       );
     }
   });
 
-  //add book to session storage
-  //1 creating a class template for js objects
+  function addLibraryToMemory() {
+    sessionStorage.setItem("favBooks", JSON.stringify(library));
+  }
+
+  //turning the element into an object, to later be saved into a variable
   class Favourite {
     constructor(title, author, image, link) {
       this.title = title;
@@ -185,51 +216,26 @@ $(document).ready(function () {
       this.link = link;
     }
   }
-  //2 creating an array that contains objects representing each book selected
-  function addToStorage(
-    selectedBookTitle,
-    selectedBookLink,
-    selectedBookAuthor,
-    selectedBookImg
-  ) {
-    let newFavourite = new Favourite(
-      selectedBookTitle,
-      selectedBookLink,
-      selectedBookAuthor,
-      selectedBookImg
-    );
-    library.push(newFavourite);
-    console.log(library);
-    /*saving the library in session storage, to be able to see the cards in the library page, 
-    even if the search page changes*/
-    sessionStorage.setItem("favBooks", JSON.stringify(library));
-    console.log(sessionStorage);
-  }
 
   //adding the card to the library page
-  function addCardToLibrary(
-    selectedBookTitle,
-    selectedBookLink,
-    selectedBookAuthor,
-    selectedBookImg
-  ) {
+  function addCardToLibrary(selectedBookTitle) {
+    let savedObjBook = library.find((o) => o.title === selectedBookTitle);
     let newBook = document.createElement("div");
     newBook.classList.add("col-sm", "col-md-4", "col-lg-3");
     newBook.innerHTML = `<div class="card" style="width: 18rem">
-            <img src="${selectedBookImg}" class="card-img-top" alt="..." />
+            <img src="${savedObjBook.image}" class="card-img-top" alt="..." />
             <div class="card-body">
-              <h5 class="card-title">${selectedBookTitle}</h5>
+              <h5 class="card-title">${savedObjBook.title}</h5>
               <p class="card-text">
-                ${selectedBookAuthor}
+                ${savedObjBook.author}
               </p>
-              <a href="${selectedBookLink}" class="btn btn-primary">Go somewhere</a>
+              <a href="${savedObjBook.link}" class="btn btn-primary">Go somewhere</a>
             </div>
       </div>`;
     let favBooksContainer = document.querySelector("#favBooksContainer");
-    if (favBooksContainer !== null) {
-      console.log("it exists!");
+    if (favBooksContainer) {
+      favBooksContainer.appendChild(newBook);
     }
-    console.log(newBook);
   }
 
   //view book description
@@ -254,11 +260,14 @@ $(document).ready(function () {
 });
 
 /*
-- am reusit sa le accesez!
-- trebuie sa creez template-ul unui card pe pagina html library;
-- sa creez acum un card folosind proprietatile info e destul de usor, dar cum le fac sa ramana pana se inchide tab-ul?
-- session storage? 
-- dupa ce le accesez, le salvez intr un obiect caruia ii dau push in matricea library
-- creez un obiect care sa contina informatiile despre cartea respectiva
-- salvez obiectul in session storage
+- cand adaug imaginea la favorite, vreau sa se creeze un obiect cu detaliile
+cartii respective
+- obiectul asta vreau sa fie stocat in session storage
+dupa vreau sa iau obiectul si sa il adaug in html
+- am nevoie ca o matrice precum library sa contina toate obiectele adaugate 
+la faovirte 
+- daca vreau sa folosesc un obiect stocat in depozit, trebuie mai intai
+sa scot obiectul din depozit
+-trebuie sa gasesc un mod prin care cand adaug cardul in HTML
+sa gasesc obiectul specific din library
 */
