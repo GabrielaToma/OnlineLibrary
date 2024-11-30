@@ -21,25 +21,47 @@
     />
   </head>
   <body class="search-page">
+
     <section class="search-section">
-      <h1 class="sp-h1">Find your next favourite book...</h1>
-      <form class="sp-form" method="get" class="form">
-        <div>
-          <labe for="search-books"></label>
-          <input class="sp-input" type="text" autocomplete="off" id="search-books" name="search-books" placeholder=""/>
-        </div>
-        <button class="sp-submit" type="button">Search</button>
-      </form>
-      <a href="library.html">See library</a>
+      <div class="container">
+        <h1 class="sp-h1">Find your next favourite book...</h1>
+        <form class="sp-form" method="get" class="form">
+          <label for="search-books"></label>
+          <input class="sp-input" type="text" autocomplete="off" id="input-search" name="search-books" placeholder=""/>
+          <button class="sp-submit" type="button">Search</button>
+        </form>
+        <a href="#favBooksContainer">See library</a>
+      </div>
     </section>
 
 
-    <div class="container books-result">
-      <!--card inserted by javascript-->
+    <div class="container">
+      <div class="row gy-5 mt-3 mb-3 d-flex justify-content-around" id="books-result">
+            <!--card inserted by javascript-->
+
+        <div>
     </div>
 
+<!--error message displayed when no input is entered-->
+    <section class="error-section">
+      <div class="error-message-noinput">
+        <p>We will find any book that you need... <br>
+        But we need some input from you too.</p>
+        <button type="button" class="btn btn-dark btn-input">Ok</button>
+      </div>
+    </section>
+  
+    <!--error message displayed when no book is found-->
+    <section class="error-section">
+      <div class="error-message">
+        <p>We are sorry, we weren't able to find exactly what you were looking for. <br>
+          Here are some books that you may be interested in.<br>
+        Would you like to search for something else?</p>
+        <button type="button" class="btn btn-dark btn-error">Yes</button>
+      </div>
+    </section>
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -55,43 +77,15 @@
   </div>
 </div>
 
-<header>
-  <div class="header-container">
-    <h1>Library</h1>
-    <span>//</span>
+<section class="library-books">
+  <div class="header-container"></div>
+    <h1>Library//</h1>
+    <h2>Books that shaped my mind and my heart.</h2>
   </div>
-  <h2>Books that shaped my mind and my heart.</h2>
-</header>
-
-<section class="container library-books">
-  <div class="row justify-content-evenly" id="favBooksContainer">
-    <div class="col-sm col-md-4 col-lg-3">
-      <div class="card" style="width: 18rem">
-        <img src="" class="card-img-top" alt="" />
-        <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <p class="card-text">
-            Some quick example text to build on the card title and make up
-            the bulk of the card's content.
-          </p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
-        </div>
-      </div>
-    </div>
+  <div class="row gy-5 justify-content-between" id="favBooksContainer">
+    <!--favourites inserted here-->
   </div>
 </section>
-
-<div class="add-book-button">
-  <a
-    href="seachBooks.html"
-    target="_blank"
-    data-bs-toggle="tooltip"
-    data-bs-title="Add a new book"
-    >+</a
-  >
-</div>
-
-
 
     <!--jquery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -107,3 +101,8 @@
 </html>
 
 
+<!--
+de facut
+- de facut un fundal pentru sectiunea find your favourite book, cu niste carti
+- de facut cardurile sa arate bine
+-->

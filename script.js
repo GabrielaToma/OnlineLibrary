@@ -1,32 +1,6 @@
 $(document).ready(function () {
   console.log("hello world");
-  let library = [];
 
-  window.onload = function getLibraryFromMemory() {
-    if (sessionStorage.getItem("favBooks")) {
-      library = JSON.parse(sessionStorage.getItem("favBooks"));
-      console.log(sessionStorage);
-      console.log(library);
-      library.forEach((book) => {
-        let favBook = document.createElement("div");
-        favBook.classList.add("col-sm", "col-md-4", "col-lg-3");
-        favBook.innerHTML = `<div class="card" style="width: 18rem">
-            <img src="${book.image}" class="card-img-top" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">${book.title}</h5>
-              <p class="card-text">
-                ${book.author}
-              </p>
-              <a href="${book.link}" class="btn btn-primary">Go somewhere</a>
-            </div>
-      </div>`;
-        let favBooksContainer = document.querySelector("#favBooksContainer");
-        if (favBooksContainer) {
-          favBooksContainer.appendChild(favBook);
-        }
-      });
-    }
-  };
   //enabling tooltips with bootstrap
   const tooltipTriggerList = document.querySelectorAll(
     '[data-bs-toggle="tooltip"]'
@@ -35,28 +9,74 @@ $(document).ready(function () {
     (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
   );
 
-  let book, title, author, bookLink, bookImg, bookDescription, bookId1;
-  let book2, title2, author2, bookLink2, bookImg2, bookDescription2, bookId2;
+  //variables
+  let book, title, author, bookLink, bookImg, bookDescription;
+  let book2, title2, author2, bookLink2, bookImg2, bookDescription2;
 
   let bookURL = "https://www.googleapis.com/books/v1/volumes?q=";
+  /*API key that acts as an identifier 
+  - not possible to make requests to the BOOKS API for public data without it
+  */
   let apiKey = "AIzaSyDh3E43dXgVWUxwakvvR487Emy6APe73Ak";
-  let booksResult = document.querySelector(".books-result");
-  let modalBody = document.querySelector(".modal-body");
-  let searchBooks = $("#search-books");
+
+  let input = $("#input-search");
+
+  //error message if no book is found
+  let errorMessage = document.querySelector(".error-message");
+  let btnError = document.querySelector(".btn-error");
+
+  //error message if no input is entered
+  let errorInput = document.querySelector(".error-message-noinput");
+  let btnInput = document.querySelector(".btn-input");
+
+  //results of the search
+  let booksResult = document.querySelector("#books-result");
   let searchData;
+
   let books = [];
-  let booksIds = [];
-  //listener search button
+  //library contains all the books that are added to "favourites"
+  let library = [];
+
+  //dispay the previously selected books using session storage to get the library
+  window.onload = function getLibraryFromMemory() {
+    if (sessionStorage.getItem("favBooks")) {
+      library = JSON.parse(sessionStorage.getItem("favBooks"));
+      //display each object saved in the array 'library' as an HTML card
+      library.forEach((book) => {
+        let favBook = document.createElement("div");
+        favBook.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
+        favBook.innerHTML = `<div class="card">
+              <img src="${book.image}" class="card-img-top"  alt="image displaying the book ${book.title}" />
+              <div class="card-body">
+                <h5 class="card-title">${book.title}</h5>
+                <p class="card-text">
+                  ${book.author}
+                </p>
+                <a href="${book.link}" class="btn btn-primary">Go somewhere</a>
+              </div>
+            </div>`;
+        let favBooksContainer = document.querySelector("#favBooksContainer");
+        if (favBooksContainer) {
+          favBooksContainer.appendChild(favBook);
+        }
+      });
+    }
+  };
+
+  //input search
   $(".sp-submit").click(function (e) {
     e.preventDefault();
     /*clear the ".books-result" div when the form is submitted,
       so the previos search results dissapear*/
     booksResult.innerHTML = "";
     //give the searchData variable the value of the input
-    searchData = searchBooks.val();
+    searchData = input.val();
     //handing empty input field
     if (searchData === "") {
-      alert("Please complete field");
+      errorInput.style.display = "block";
+      btnError.addEventListener("click", function () {
+        errorInput.style.display = "none";
+      });
     } else {
       getBookFromGoogle(searchData);
     }
@@ -69,32 +89,31 @@ $(document).ready(function () {
       so the previos search results dissapear*/
       booksResult.innerHTML = "";
       //give the searchData variable the value of the input
-      searchData = searchBooks.val();
+      searchData = input.val();
       //handing empty input field
       if (searchData === "") {
-        alert("Please complete field");
+        errorInput.style.display = "block";
+        btnInput.addEventListener("click", function () {
+          errorInput.style.display = "none";
+        });
       } else {
         getBookFromGoogle(searchData);
       }
     }
   });
 
+  /*make a fetch request to BOOKS API 
+  - returns a promise which is fulfilled with a response object*/
   const getBookFromGoogle = async (param) => {
     try {
       const response = await fetch(`${bookURL}${param}&key=${apiKey}`);
-      console.log(response);
+      // it is necessary to extract the body of the response, with '.json()'
       const data = await response.json();
-      console.log(data);
+      //'books' will contain an array with all the results received from the fetch request in the shape of objects
       books = data.items;
-      //book va contine o matrice cu toate rezultatele in forma de obiecte
+      console.log(books);
 
-      //save the ids of the books in an array
-      for (let i = 0; i < books.length; i++) {
-        let id = books[i].id;
-        booksIds.push(id);
-        console.log(booksIds);
-      }
-
+      //display the results of the search
       for (let i = 0; i < books.length; i += 2) {
         book = books[i].volumeInfo;
         console.log(book);
@@ -103,79 +122,61 @@ $(document).ready(function () {
         bookLink = book.previewLink;
         bookImg = book.imageLinks.thumbnail;
         bookDescription = book.description;
-        bookId1 = books[i].id;
 
-        console.log(bookDescription);
-
-        book2 = books[i + 1].volumeInfo;
-        title2 = book2.title;
-        author2 = book2.authors[0];
-        bookLink2 = book2.previewLink;
-        bookImg2 = book2.imageLinks.thumbnail;
-        bookDescription2 = book2.description;
-        bookId2 = books[i + 1].id;
-
-        booksResult.innerHTML +=
-          '<div class="row gy-5 mt-3 mb-3 d-flex justify-content-around">' +
-          formatResults(
-            title,
-            author,
-            bookLink,
-            bookImg,
-            bookDescription,
-            bookId1
-          ) +
-          formatResults(
-            title2,
-            author2,
-            bookLink2,
-            bookImg2,
-            bookDescription2,
-            bookId2
-          ) +
-          "</div>";
-
-        console.log(booksResult);
+        let bookFromGoogle = document.createElement("div");
+        bookFromGoogle.classList.add("col-10", "col-md-10", "col-lg-6");
+        bookFromGoogle.innerHTML = formatResultsHTML(
+          title,
+          author,
+          bookLink,
+          bookImg,
+          bookDescription
+        );
+        console.log(bookFromGoogle);
+        if (booksResult) {
+          booksResult.appendChild(bookFromGoogle);
+        }
       }
     } catch (e) {
       console.log("ERROR", e);
-      alert("Something went wrong, try again!");
+      errorMessage.style.display = "block";
+      btnError.addEventListener("click", function () {
+        errorMessage.style.display = "none";
+      });
     }
   };
 
-  function formatResults(
-    title,
-    author,
-    bookLink,
-    bookImg,
-    description,
-    bookId
-  ) {
-    let htmlCard = `<div class="col-8 col-sm-10 col-lg-5" >
-    <div class="card" data-id="${bookId}" style="height:auto; background-color: rgb(231, 225, 213);border: 0;box-shadow: 5px 10px 18px gray;">
-      <div class="row no-gutters"> 
+  //format the htmlCard
+  function formatResultsHTML(title, author, bookLink, bookImg, description) {
+    let htmlCard = `<div class="card">
+      <div class="row g-0"> 
         <div class="col-sm-4">
-          <img src="${bookImg}" class="card-img" style="width: 100%; height: 13em" alt="image displaying the cover of the book ${title}">
+          <img src="${bookImg}" class="" alt="image displaying the cover of the book ${title}">
         </div>
         <div class="col-sm-8">
           <div class="card-body">
             <h5 class="card-title">${title}</h5>
             <p class="card-text">Author: ${author}</p>
-            <button type="button" class="btn px-0" style="color:rgb(101, 4, 101);" onMouseOver = "this.style.color='#F8F8F8'" onMouseOut = "this.style.color='black'" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="${description}">
-              View description
-            </button>
-            <a target="_blank" href="${bookLink}" class="btn px-3" style="color:rgb(101, 4, 101);" onMouseOver = "this.style.color='#F8F8F8'" onMouseOut = "this.style.color='black'" >View book</a>
-            <button type="button" class="add-to-library" data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
+            <div>
+              <button type="button" class="btn px-0" data-bs-toggle="modal" data-bs-target="#descriptionModal" data-bs-whatever="${description}">
+              View description</button>
+              <a target="_blank" href="${bookLink}" class="btn px-0">View book</a>
+            </div>
+            <button type="button" class="add-to-library" onClick ="this.style.color='black'" data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
             </button>
           </div>
         </div>
       </div>
-    </div>
-  </div>`;
+    </div>`;
     return htmlCard;
   }
 
-  //select the book and its specifications
+  /*select a book and add it to favourites, by extracting
+  its details using data-* and getAtrribute;
+  - added the event listener on the whole results section,
+  as it is easier to select the details of the book that was
+  clicked with event.target
+  */
   booksResult.addEventListener("click", function (event) {
     let positionClick = event.target;
     if (positionClick.classList.contains("add-to-library")) {
@@ -194,18 +195,9 @@ $(document).ready(function () {
       even if the search page changes*/
       library.push(newFavourite);
       addLibraryToMemory();
-      addCardToLibrary(
-        selectedBookTitle,
-        selectedBookAuthor,
-        selectedBookImg,
-        selectedBookLink
-      );
+      addCardToLibraryHTML(selectedBookTitle);
     }
   });
-
-  function addLibraryToMemory() {
-    sessionStorage.setItem("favBooks", JSON.stringify(library));
-  }
 
   //turning the element into an object, to later be saved into a variable
   class Favourite {
@@ -217,40 +209,47 @@ $(document).ready(function () {
     }
   }
 
-  //adding the card to the library page
-  function addCardToLibrary(selectedBookTitle) {
-    let savedObjBook = library.find((o) => o.title === selectedBookTitle);
-    let newBook = document.createElement("div");
-    newBook.classList.add("col-sm", "col-md-4", "col-lg-3");
-    newBook.innerHTML = `<div class="card" style="width: 18rem">
-            <img src="${savedObjBook.image}" class="card-img-top" alt="..." />
+  //adding the updated library to session storage
+  function addLibraryToMemory() {
+    sessionStorage.setItem("favBooks", JSON.stringify(library));
+  }
+
+  //adding the card to the library HTML
+  function addCardToLibraryHTML(selectedBookTitle) {
+    let favBook = library.find((o) => o.title === selectedBookTitle);
+    let newBookHTML = document.createElement("div");
+    newBookHTML.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
+    newBookHTML.innerHTML = `<div class="card">
+            <img src="${favBook.image}" class="card-img-top" alt="image displaying the book ${book.title}" />
             <div class="card-body">
-              <h5 class="card-title">${savedObjBook.title}</h5>
+              <h5 class="card-title">${favBook.title}</h5>
               <p class="card-text">
-                ${savedObjBook.author}
+                ${favBook.author}
               </p>
-              <a href="${savedObjBook.link}" class="btn btn-primary">Go somewhere</a>
+              <a href="${favBook.link}" class="btn btn-primary">Go somewhere</a>
             </div>
       </div>`;
     let favBooksContainer = document.querySelector("#favBooksContainer");
     if (favBooksContainer) {
-      favBooksContainer.appendChild(newBook);
+      favBooksContainer.appendChild(newBookHTML);
     }
   }
 
   //view book description
-  const exampleModal = document.getElementById("exampleModal");
+  let buttonModal = document.getElementById("descriptionModal");
+  let modalBody = document.querySelector(".modal-body");
 
   function viewDescription(description) {
-    if (exampleModal) {
-      exampleModal.addEventListener("show.bs.modal", (event) => {
-        // Button that triggered the modal
-        const button = event.relatedTarget;
-        const descriptionAttribute = button.getAttribute("data-bs-whatever");
+    if (buttonModal) {
+      buttonModal.addEventListener("show.bs.modal", (event) => {
+        // find the button that triggered the modal
+        const buttonTriggered = event.relatedTarget;
+        const descriptionAttribute =
+          buttonTriggered.getAttribute("data-bs-whatever");
         modalBody.textContent = descriptionAttribute;
         if (modalBody.textContent === "undefined") {
           modalBody.textContent =
-            "Sorry! No description is available for this book.";
+            "Sorry! No description is available for this book. But have you tried a blind date with a book?";
         }
       });
     }
@@ -260,14 +259,5 @@ $(document).ready(function () {
 });
 
 /*
-- cand adaug imaginea la favorite, vreau sa se creeze un obiect cu detaliile
-cartii respective
-- obiectul asta vreau sa fie stocat in session storage
-dupa vreau sa iau obiectul si sa il adaug in html
-- am nevoie ca o matrice precum library sa contina toate obiectele adaugate 
-la faovirte 
-- daca vreau sa folosesc un obiect stocat in depozit, trebuie mai intai
-sa scot obiectul din depozit
--trebuie sa gasesc un mod prin care cand adaug cardul in HTML
-sa gasesc obiectul specific din library
+
 */
