@@ -123,19 +123,26 @@ $(document).ready(function () {
         bookImg = book.imageLinks.thumbnail;
         bookDescription = book.description;
 
-        let bookFromGoogle = document.createElement("div");
-        bookFromGoogle.classList.add("col-10", "col-md-10", "col-lg-6");
-        bookFromGoogle.innerHTML = formatResultsHTML(
-          title,
-          author,
-          bookLink,
-          bookImg,
-          bookDescription
-        );
-        console.log(bookFromGoogle);
-        if (booksResult) {
-          booksResult.appendChild(bookFromGoogle);
-        }
+        book2 = books[i + 1].volumeInfo;
+        title2 = book2.title;
+        author2 = book2.authors[0];
+        bookLink2 = book2.previewLink;
+        bookImg2 = book2.imageLinks.thumbnail;
+        bookDescription2 = book2.description;
+
+        booksResult.innerHTML +=
+          '<div class="row gy-5 mt-3 mb-3 d-flex justify-content-around">' +
+          formatResultsHTML(title, author, bookLink, bookImg, bookDescription) +
+          formatResultsHTML(
+            title2,
+            author2,
+            bookLink2,
+            bookImg2,
+            bookDescription2
+          ) +
+          "</div>";
+
+        console.log(booksResult);
       }
     } catch (e) {
       console.log("ERROR", e);
@@ -148,7 +155,8 @@ $(document).ready(function () {
 
   //format the htmlCard
   function formatResultsHTML(title, author, bookLink, bookImg, description) {
-    let htmlCard = `<div class="card">
+    let htmlCard = `<div class="col-8 col-sm-10 col-lg-5" >
+    <div class="card">
       <div class="row g-0"> 
         <div class="col-sm-4">
           <img src="${bookImg}" class="" alt="image displaying the cover of the book ${title}">
@@ -167,7 +175,8 @@ $(document).ready(function () {
           </div>
         </div>
       </div>
-    </div>`;
+    </div>
+  </div>`;
     return htmlCard;
   }
 

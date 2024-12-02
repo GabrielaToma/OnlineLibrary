@@ -20,6 +20,7 @@
       rel="stylesheet"
     />
   </head>
+
   <body class="search-page">
 
     <section class="search-section">
@@ -35,14 +36,11 @@
     </section>
 
 
-    <div class="container">
-      <div class="row gy-5 mt-3 mb-3 d-flex justify-content-around" id="books-result">
-            <!--card inserted by javascript-->
-
-        <div>
+    <div id="books-result">
+      <!--card inserted by javascript-->
     </div>
 
-<!--error message displayed when no input is entered-->
+    <!--error message displayed when no input is entered-->
     <section class="error-section">
       <div class="error-message-noinput">
         <p>We will find any book that you need... <br>
@@ -60,32 +58,33 @@
         <button type="button" class="btn btn-dark btn-error">Yes</button>
       </div>
     </section>
-<!-- Modal -->
-<div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn" style="background-color: rgb(132, 89, 132); color: white;" data-bs-dismiss="modal">Close</button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!--the body of the modal will be inserted by js with each book's description-->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn" style="background-color: rgb(132, 89, 132); color: white;" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<section class="library-books">
-  <div class="header-container"></div>
-    <h1>Library//</h1>
-    <h2>Books that shaped my mind and my heart.</h2>
-  </div>
-  <div class="row gy-5 justify-content-between" id="favBooksContainer">
-    <!--favourites inserted here-->
-  </div>
-</section>
+    <section class="library-books">
+      <div class="header-container"></div>
+        <h1>Library//</h1>
+        <h2>Books that shaped my mind and my heart.</h2>
+      </div>
+      <div class="row gy-5 justify-content-between" id="favBooksContainer">
+        <!--favourites inserted here-->
+      </div>
+    </section>
 
     <!--jquery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

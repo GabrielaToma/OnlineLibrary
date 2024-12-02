@@ -183,45 +183,45 @@ section.library-books h2 {
   font-size: 2rem;
 }
 
-section div#favBooksContainer .card {
+section.library-books div#favBooksContainer .card {
   height: 20rem;
   background-color: transparent;
   color: rgb(181, 175, 175);
 }
 
-section div#favBooksContainer .card-img-top {
+section.library-books div#favBooksContainer .card-img-top {
   height: 10rem;
   object-fit: contain;
 }
 
-section div#favBooksContainer .card-img-top:hover {
+section.library-books div#favBooksContainer .card-img-top:hover {
   cursor: pointer;
 }
 
-section div#favBooksContainer .card-body {
+section.library-books div#favBooksContainer .card-body {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
 }
 
-section div#favBooksContainer .card-body h5 {
+section.library-books div#favBooksContainer .card-body h5 {
   text-align: center;
 }
 
 @media screen and (max-width: 576px) {
-  .books-result .card {
+  #books-result .card {
     height: auto;
   }
 
-  .books-result .card img {
+  #books-result .card img {
     height: 10rem;
     width: 100%;
     object-fit: contain;
     margin-top: 10px;
   }
 
-  .books-result .card-body {
+  #books-result .card-body {
     align-items: center;
   }
 }
