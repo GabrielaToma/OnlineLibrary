@@ -1,4 +1,4 @@
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function () {
   console.log("hello world");
 
   //enabling tooltips with bootstrap
@@ -19,7 +19,8 @@ $(document).ready(function () {
   */
   let apiKey = "AIzaSyDh3E43dXgVWUxwakvvR487Emy6APe73Ak";
 
-  let input = $("#input-search");
+  let input = document.querySelector("#input-search");
+  let buttonSubmit = document.querySelector(".sp-submit");
 
   //error message if no book is found
   let errorMessage = document.querySelector(".error-message");
@@ -32,7 +33,7 @@ $(document).ready(function () {
   //results of the search
   let booksResult = document.querySelector("#books-result");
   let searchData;
-
+  //books contains all the data items from the fetch request
   let books = [];
   //library contains all the books that are added to "favourites"
   let library = [];
@@ -46,13 +47,14 @@ $(document).ready(function () {
         let favBook = document.createElement("div");
         favBook.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
         favBook.innerHTML = `<div class="card">
-              <img src="${book.image}" class="card-img-top"  alt="image displaying the book ${book.title}" />
+              <a href="${book.link}" target="_blank"><img src="${book.image}" class="card-img-top"  alt="image displaying the book ${book.title}" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
               <div class="card-body">
                 <h5 class="card-title">${book.title}</h5>
                 <p class="card-text">
                   ${book.author}
                 </p>
-                <a href="${book.link}" class="btn btn-primary">Go somewhere</a>
+                <button data-bs-toggle="modal" class="add-review" data-title="${book.title}"  data-bs-target="#reviewModal" >Old friend? Add a review</button>
+                <button class="remove-element">Remove from favourites</button>
               </div>
             </div>`;
         let favBooksContainer = document.querySelector("#favBooksContainer");
@@ -64,13 +66,13 @@ $(document).ready(function () {
   };
 
   //input search
-  $(".sp-submit").click(function (e) {
+  buttonSubmit.addEventListener("click", function (e) {
     e.preventDefault();
     /*clear the ".books-result" div when the form is submitted,
       so the previos search results dissapear*/
     booksResult.innerHTML = "";
     //give the searchData variable the value of the input
-    searchData = input.val();
+    searchData = input.value;
     //handing empty input field
     if (searchData === "") {
       errorInput.style.display = "block";
@@ -82,14 +84,14 @@ $(document).ready(function () {
     }
   });
 
-  $(window).keydown(function (e) {
+  window.addEventListener("keydown", function (e) {
     if (e.key === "Enter" || e.keyCode === 13) {
       e.preventDefault();
       /*clear the ".books-result" div when the form is submitted,
       so the previos search results dissapear*/
       booksResult.innerHTML = "";
       //give the searchData variable the value of the input
-      searchData = input.val();
+      searchData = input.value;
       //handing empty input field
       if (searchData === "") {
         errorInput.style.display = "block";
@@ -111,7 +113,6 @@ $(document).ready(function () {
       const data = await response.json();
       //'books' will contain an array with all the results received from the fetch request in the shape of objects
       books = data.items;
-      console.log(books);
 
       //display the results of the search
       for (let i = 0; i < books.length; i += 2) {
@@ -170,7 +171,7 @@ $(document).ready(function () {
               View description</button>
               <a target="_blank" href="${bookLink}" class="btn px-0">View book</a>
             </div>
-            <button type="button" class="add-to-library" onClick ="this.style.color='black'" data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
+            <button type="button" class="add-to-library" style="color: rgb(58, 9, 58)"  data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
             </button>
           </div>
         </div>
@@ -180,71 +181,7 @@ $(document).ready(function () {
     return htmlCard;
   }
 
-  /*select a book and add it to favourites, by extracting
-  its details using data-* and getAtrribute;
-  - added the event listener on the whole results section,
-  as it is easier to select the details of the book that was
-  clicked with event.target
-  */
-  booksResult.addEventListener("click", function (event) {
-    let positionClick = event.target;
-    if (positionClick.classList.contains("add-to-library")) {
-      let selectedBookTitle = positionClick.getAttribute("data-title");
-      let selectedBookAuthor = positionClick.getAttribute("data-author");
-      let selectedBookImg = positionClick.getAttribute("data-img");
-      let selectedBookLink = positionClick.getAttribute("data-link");
-
-      let newFavourite = new Favourite(
-        selectedBookTitle,
-        selectedBookAuthor,
-        selectedBookImg,
-        selectedBookLink
-      );
-      /*saving the library in session storage, to be able to see the cards in the library page, 
-      even if the search page changes*/
-      library.push(newFavourite);
-      addLibraryToMemory();
-      addCardToLibraryHTML(selectedBookTitle);
-    }
-  });
-
-  //turning the element into an object, to later be saved into a variable
-  class Favourite {
-    constructor(title, author, image, link) {
-      this.title = title;
-      this.author = author;
-      this.image = image;
-      this.link = link;
-    }
-  }
-
-  //adding the updated library to session storage
-  function addLibraryToMemory() {
-    sessionStorage.setItem("favBooks", JSON.stringify(library));
-  }
-
-  //adding the card to the library HTML
-  function addCardToLibraryHTML(selectedBookTitle) {
-    let favBook = library.find((o) => o.title === selectedBookTitle);
-    let newBookHTML = document.createElement("div");
-    newBookHTML.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
-    newBookHTML.innerHTML = `<div class="card">
-            <img src="${favBook.image}" class="card-img-top" alt="image displaying the book ${book.title}" />
-            <div class="card-body">
-              <h5 class="card-title">${favBook.title}</h5>
-              <p class="card-text">
-                ${favBook.author}
-              </p>
-              <a href="${favBook.link}" class="btn btn-primary">Go somewhere</a>
-            </div>
-      </div>`;
-    let favBooksContainer = document.querySelector("#favBooksContainer");
-    if (favBooksContainer) {
-      favBooksContainer.appendChild(newBookHTML);
-    }
-  }
-
-  //view book description
+  //view book description in modal
   let buttonModal = document.getElementById("descriptionModal");
   let modalBody = document.querySelector(".modal-body");
 
@@ -265,8 +202,173 @@ $(document).ready(function () {
   }
 
   viewDescription(bookDescription);
+
+  /*select a book and add it to favourites, by extracting
+  its details using data-* and getAtrribute;
+  - added the event listener on the whole results section,
+  as it is easier to select the details of the book that was
+  clicked with event.target
+  */
+  booksResult.addEventListener("click", function (event) {
+    let positionClick = event.target;
+    if (positionClick.classList.contains("add-to-library")) {
+      if (positionClick.style.color == "rgb(58, 9, 58)") {
+        positionClick.style.color = "white";
+        let selectedBookTitle = positionClick.getAttribute("data-title");
+        let selectedBookAuthor = positionClick.getAttribute("data-author");
+        let selectedBookImg = positionClick.getAttribute("data-img");
+        let selectedBookLink = positionClick.getAttribute("data-link");
+
+        let newFavourite = new Favourite(
+          selectedBookTitle,
+          selectedBookAuthor,
+          selectedBookImg,
+          selectedBookLink
+        );
+        /*saving the library in session storage, to be able to see the cards in the library page, 
+      even if the search page changes*/
+        library.push(newFavourite);
+        addLibraryToMemory();
+        addCardToLibraryHTML(selectedBookTitle);
+      } else {
+        positionClick.style.color = "rgb(58, 9, 58)";
+        let selectedBookTitleDeleted = positionClick.getAttribute("data-title");
+        let indexOfBookToBeRemoved = library.findIndex(
+          (e) => e.title === selectedBookTitleDeleted
+        );
+        library.splice(indexOfBookToBeRemoved, 1);
+        //update session storage
+        addLibraryToMemory();
+      }
+    }
+  });
+
+  //turning the element into an object, to later be saved into a variable
+  class Favourite {
+    constructor(title, author, image, link) {
+      this.title = title;
+      this.author = author;
+      this.image = image;
+      this.link = link;
+    }
+  }
+
+  //adding the updated library to session storage
+  function addLibraryToMemory() {
+    sessionStorage.setItem("favBooks", JSON.stringify(library));
+    console.log(sessionStorage);
+  }
+
+  //adding the card to the library HTML
+  function addCardToLibraryHTML(selectedBookTitle) {
+    let favBook = library.find((o) => o.title === selectedBookTitle);
+    console.log(favBook);
+    let newBookHTML = document.createElement("div");
+    newBookHTML.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
+    newBookHTML.innerHTML = `<div class="card">
+            <a href="${favBook.link}" target="_blank"><img src="${favBook.image}" class="card-img-top"  alt="image displaying the book ${favBook.title}" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
+            <div class="card-body">
+              <h5 class="card-title">${favBook.title}</h5>
+              <p class="card-text">
+                ${favBook.author}
+              </p>
+              <button class="add-review" data-title="${favBook.title}" data-bs-toggle="modal" data-bs-target="#reviewModal">Old friend? Add a review</button>
+              <button class="remove-element">Remove from favourites</button>
+            </div>
+      </div>`;
+    let favBooksContainer = document.querySelector("#favBooksContainer");
+    if (favBooksContainer) {
+      favBooksContainer.appendChild(newBookHTML);
+    }
+  }
+
+  //remove the book from the library
+  favBooksContainer.addEventListener("click", function (event) {
+    let positionClickRemove = event.target;
+    if (positionClickRemove.classList.contains("remove-element")) {
+      //removes the card containing the book from HTML
+      let selectedBookToBeDeletedHTML =
+        positionClickRemove.parentNode.parentNode;
+      selectedBookToBeDeletedHTML.remove();
+      //find the title of the selected card in the 'library' array and remove it;
+      let selectedBookTitleD =
+        positionClickRemove.previousElementSibling.previousElementSibling
+          .innerHTML;
+      let indexOfBookToBeRemoved = library.findIndex(
+        (e) => e.title === selectedBookTitleD
+      );
+      library.splice(indexOfBookToBeRemoved, 1);
+      //update session storage
+      addLibraryToMemory();
+      location.reload();
+    }
+  });
+
+  //add book reviews;
+  let reviews = [];
+  let reviewTitle = document.querySelector(".textAreaLabel");
+  let reviewTextArea = document.querySelector(".textArea");
+  let saveReviewButton = document.querySelector(".save-review-button");
+  let editReviewButton = document.querySelector(".edit-review-button");
+
+  /*find the 'write a review' button that was clicked, get the title of the book
+  and the review using the getReview() function */
+  favBooksContainer.addEventListener("click", function (event) {
+    let positionClickAdd = event.target;
+    //change the label of the modal with the title of the book
+    let labelTitle = positionClickAdd.getAttribute("data-title");
+    reviewTitle.textContent = labelTitle;
+    //add a name attribute to the textarea that contains the title of the book
+    reviewTextArea.setAttribute("name", labelTitle);
+
+    let reviewToBeDisplayed = reviews.find((o) => o.bookName === labelTitle);
+    if (reviewToBeDisplayed === undefined) {
+      reviewTextArea.value = "";
+    } else {
+      reviewTextArea.value = reviewToBeDisplayed.review;
+    }
+
+    //change the text content and the color of the button that opens the modal, if there is content inside
+    saveReviewButton.addEventListener("click", function () {
+      positionClickAdd.textContent = "See review";
+      positionClickAdd.style.color = "rgb(158, 119, 143)";
+    });
+  });
+
+  saveReviewButton.addEventListener("click", function () {
+    /*if a review for a book already exists, when the 'save' button is pressed, delete the initial review, 
+    then call the function to add a new review/*/
+    let indexExistingReview = reviews.findIndex(
+      (r) => r.bookName === reviewTextArea.getAttribute("name")
+    );
+    if (indexExistingReview !== -1) {
+      reviews.splice(indexExistingReview, 1);
+    }
+    getReview(reviewTextArea.getAttribute("name"), reviewTextArea.value);
+    console.log(reviews);
+  });
+
+  function getReview(name, reviewSaved) {
+    let bookReview = new Review(name, reviewSaved);
+    reviews.push(bookReview);
+  }
+
+  //building key-value pairs, containing the name and the review of the book
+  class Review {
+    constructor(name, bookRevewP) {
+      this.bookName = name;
+      this.review = bookRevewP;
+    }
+  }
+
+  //enable 'save review' button if textarea is not empty
+  reviewTextArea.addEventListener("keyup", function () {
+    if (reviewTextArea.value === "") {
+      saveReviewButton.disabled = true;
+    } else {
+      saveReviewButton.disabled = false;
+    }
+  });
+
+  /*aaaaaaaaaaaaaaaaaa */
 });
-
-/*
-
-*/
