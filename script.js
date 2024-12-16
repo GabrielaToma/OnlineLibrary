@@ -38,8 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
   //library contains all the books that are added to "favourites"
   let library = [];
 
-  //dispay the previously selected books using session storage to get the library
-  window.onload = function getLibraryFromMemory() {
+  //get the favourite books that were saved in sessionStorage
+  window.onload = function getDataFromMemory() {
+    //get the selected books that were added to favourites
     if (sessionStorage.getItem("favBooks")) {
       library = JSON.parse(sessionStorage.getItem("favBooks"));
       //display each object saved in the array 'library' as an HTML card
@@ -256,7 +257,6 @@ document.addEventListener("DOMContentLoaded", function () {
   //adding the updated library to session storage
   function addLibraryToMemory() {
     sessionStorage.setItem("favBooks", JSON.stringify(library));
-    console.log(sessionStorage);
   }
 
   //adding the card to the library HTML
@@ -314,13 +314,21 @@ document.addEventListener("DOMContentLoaded", function () {
   /*find the 'write a review' button that was clicked, get the title of the book
   and the review using the getReview() function */
   favBooksContainer.addEventListener("click", function (event) {
+    //find the book that was clicked
     let positionClickAdd = event.target;
     //change the label of the modal with the title of the book
     let labelTitle = positionClickAdd.getAttribute("data-title");
     reviewTitle.textContent = labelTitle;
+
     //add a name attribute to the textarea that contains the title of the book
     reviewTextArea.setAttribute("name", labelTitle);
 
+    //get the previously added reviews from session storage
+    if (sessionStorage.getItem("reviews")) {
+      reviews = JSON.parse(sessionStorage.getItem("reviews"));
+    }
+
+    //find the review that matches the book's title
     let reviewToBeDisplayed = reviews.find((o) => o.bookName === labelTitle);
     if (reviewToBeDisplayed === undefined) {
       reviewTextArea.value = "";
@@ -344,13 +352,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (indexExistingReview !== -1) {
       reviews.splice(indexExistingReview, 1);
     }
-    getReview(reviewTextArea.getAttribute("name"), reviewTextArea.value);
-    console.log(reviews);
+    saveReview(reviewTextArea.getAttribute("name"), reviewTextArea.value);
   });
 
-  function getReview(name, reviewSaved) {
+  function saveReview(name, reviewSaved) {
     let bookReview = new Review(name, reviewSaved);
     reviews.push(bookReview);
+    addReviewsToMemory();
+  }
+
+  //add all the saved reviews in sessionStorage
+  function addReviewsToMemory() {
+    sessionStorage.setItem("reviews", JSON.stringify(reviews));
+    console.log(sessionStorage);
   }
 
   //building key-value pairs, containing the name and the review of the book
