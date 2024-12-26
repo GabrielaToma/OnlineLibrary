@@ -3,6 +3,7 @@ body {
   color: white;
   padding-bottom: 40px;
   height: auto;
+  font-family: "Nanum Myeongjo", sans-serif;
 }
 
 * {
@@ -88,6 +89,11 @@ body {
 .sp-submit:hover {
   background-color: black;
   color: rgb(181, 178, 178);
+}
+
+section.search-section a {
+  color: rgb(181, 178, 178);
+  text-decoration: none;
 }
 
 .search-section a:visited {
