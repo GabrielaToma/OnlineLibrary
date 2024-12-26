@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let books = [];
   //library contains all the books that are added to "favourites"
   let library = [];
+  //paragraph that shows up when no book is in the 'favourites' library
+  let p = document.querySelector(".noFavouritesYet");
 
   //get the favourite books that were saved in sessionStorage
   window.onload = function getLibraryFromMemory() {
@@ -44,34 +46,43 @@ document.addEventListener("DOMContentLoaded", function () {
     if (sessionStorage.getItem("favBooks")) {
       library = JSON.parse(sessionStorage.getItem("favBooks"));
       //display each object saved in the array 'library' as an HTML card
-      library.forEach((book) => {
-        let favBook = document.createElement("div");
-        favBook.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
-        favBook.setAttribute("name", book.title);
-        favBook.innerHTML = `<div class="card">
-              <a href="${book.link}" target="_blank"><img src="${
-          book.image
-        }" class="card-img-top"  alt="image displaying the book ${
-          book.title
-        }" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
-              <div class="card-body">
-                <h5 class="card-title">${book.title}</h5>
-                <p class="card-text">
-                  ${book.author}
-                </p>
-                <button data-bs-toggle="modal" class="add-review" data-title="${
-                  book.title
-                }" data-bs-target="#reviewModal">${doesReviewExist(
-          book.title
-        )}</button>
-                <button class="remove-element">Remove from favourites</button>
-              </div>
-            </div>`;
-        let favBooksContainer = document.querySelector("#favBooksContainer");
-        if (favBooksContainer) {
-          favBooksContainer.appendChild(favBook);
-        }
-      });
+      if (library.length != 0) {
+        //if there is a book in the 'favourites' section, remove the paragraph
+        p.style.display = "none";
+        library.forEach((book) => {
+          let favBook = document.createElement("div");
+          favBook.classList.add(
+            "col-xs-11",
+            "col-sm-6",
+            "col-md-4",
+            "col-lg-3"
+          );
+          favBook.setAttribute("name", book.title);
+          favBook.innerHTML = `<div class="card">
+                <a href="${book.link}" target="_blank"><img src="${
+            book.image
+          }" class="card-img-top"  alt="image displaying the book ${
+            book.title
+          }" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
+                <div class="card-body">
+                  <h5 class="card-title">${book.title}</h5>
+                  <p class="card-text">
+                    ${book.author}
+                  </p>
+                  <button data-bs-toggle="modal" class="add-review" data-title="${
+                    book.title
+                  }" data-bs-target="#reviewModal">${doesReviewExist(
+            book.title
+          )}</button>
+                  <button class="remove-element">Remove from favourites</button>
+                </div>
+              </div>`;
+          let favBooksContainer = document.querySelector("#favBooksContainer");
+          if (favBooksContainer) {
+            favBooksContainer.appendChild(favBook);
+          }
+        });
+      }
     }
   };
 
@@ -253,6 +264,8 @@ document.addEventListener("DOMContentLoaded", function () {
         library.push(newFavourite);
         addLibraryToMemory();
         addCardToLibraryHTML(selectedBookTitle);
+        //delete the paragraph in the 'favBooksContainer'
+        p.style.display = "none";
       } else {
         positionClick.style.color = "rgb(215, 201, 201)";
         //delete the book from the library array
@@ -267,6 +280,9 @@ document.addEventListener("DOMContentLoaded", function () {
         let HTMLcollection = favBooksContainer.children;
         let childHTML = HTMLcollection.namedItem(selectedBookTitleDeleted);
         childHTML.remove();
+        if (library.length === 0) {
+          p.style.display = "block";
+        }
       }
     }
   });
@@ -328,6 +344,9 @@ document.addEventListener("DOMContentLoaded", function () {
       library.splice(indexOfBookToBeRemoved, 1);
       //update session storage
       addLibraryToMemory();
+    }
+    if (library.length === 0) {
+      p.style.display = "block";
     }
   });
 
@@ -408,6 +427,4 @@ document.addEventListener("DOMContentLoaded", function () {
       saveReviewButton.disabled = false;
     }
   });
-
-  /*aaaaaaaaaaaaaaaaaa */
 });
