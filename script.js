@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       library.forEach((book) => {
         let favBook = document.createElement("div");
         favBook.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
+        favBook.setAttribute("name", book.title);
         favBook.innerHTML = `<div class="card">
               <a href="${book.link}" target="_blank"><img src="${
           book.image
@@ -254,6 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addCardToLibraryHTML(selectedBookTitle);
       } else {
         positionClick.style.color = "rgb(215, 201, 201)";
+        //delete the book from the library array
         let selectedBookTitleDeleted = positionClick.getAttribute("data-title");
         let indexOfBookToBeRemoved = library.findIndex(
           (e) => e.title === selectedBookTitleDeleted
@@ -261,6 +263,10 @@ document.addEventListener("DOMContentLoaded", function () {
         library.splice(indexOfBookToBeRemoved, 1);
         //update session storage
         addLibraryToMemory();
+        //delete the book from the library HTML
+        let HTMLcollection = favBooksContainer.children;
+        let childHTML = HTMLcollection.namedItem(selectedBookTitleDeleted);
+        childHTML.remove();
       }
     }
   });
@@ -283,9 +289,10 @@ document.addEventListener("DOMContentLoaded", function () {
   //adding the card to the library HTML
   function addCardToLibraryHTML(selectedBookTitle) {
     let favBook = library.find((o) => o.title === selectedBookTitle);
-    console.log(favBook);
     let newBookHTML = document.createElement("div");
     newBookHTML.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
+    newBookHTML.setAttribute("name", favBook.title);
+    console.log(newBookHTML);
     newBookHTML.innerHTML = `<div class="card">
             <a href="${favBook.link}" target="_blank"><img src="${favBook.image}" class="card-img-top"  alt="image displaying the book ${favBook.title}" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
             <div class="card-body">
@@ -315,7 +322,6 @@ document.addEventListener("DOMContentLoaded", function () {
       let selectedBookTitleD =
         positionClickRemove.previousElementSibling.previousElementSibling
           .previousElementSibling.innerHTML;
-      console.log(selectedBookTitleD);
       let indexOfBookToBeRemoved = library.findIndex(
         (e) => e.title === selectedBookTitleD
       );
