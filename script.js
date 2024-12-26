@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let library = [];
 
   //get the favourite books that were saved in sessionStorage
-  window.onload = function getDataFromMemory() {
+  window.onload = function getLibraryFromMemory() {
     //get the selected books that were added to favourites
     if (sessionStorage.getItem("favBooks")) {
       library = JSON.parse(sessionStorage.getItem("favBooks"));
@@ -48,13 +48,21 @@ document.addEventListener("DOMContentLoaded", function () {
         let favBook = document.createElement("div");
         favBook.classList.add("col-xs-11", "col-sm-6", "col-md-4", "col-lg-3");
         favBook.innerHTML = `<div class="card">
-              <a href="${book.link}" target="_blank"><img src="${book.image}" class="card-img-top"  alt="image displaying the book ${book.title}" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
+              <a href="${book.link}" target="_blank"><img src="${
+          book.image
+        }" class="card-img-top"  alt="image displaying the book ${
+          book.title
+        }" data-bs-toggle="tooltip" data-bs-title="Default tooltip" data-bs-custom-class="custom-tooltip"/></a>
               <div class="card-body">
                 <h5 class="card-title">${book.title}</h5>
                 <p class="card-text">
                   ${book.author}
                 </p>
-                <button data-bs-toggle="modal" class="add-review" data-title="${book.title}"  data-bs-target="#reviewModal" >Old friend? Add a review</button>
+                <button data-bs-toggle="modal" class="add-review" data-title="${
+                  book.title
+                }" data-bs-target="#reviewModal">${doesReviewExist(
+          book.title
+        )}</button>
                 <button class="remove-element">Remove from favourites</button>
               </div>
             </div>`;
@@ -65,6 +73,21 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   };
+
+  /*check to see if the book has a review saved in sessionStorage onload: 
+  - yes(name of the button will be 'See review');
+  - no(name of the button will be 'Old friend? Add a review')*/
+  function doesReviewExist(x) {
+    if (sessionStorage.getItem("reviews")) {
+      reviews = JSON.parse(sessionStorage.getItem("reviews"));
+    }
+    let reviewFound = reviews.find((o) => o.bookName === x);
+    if (reviewFound === undefined) {
+      return "Old friend? Add a review";
+    } else {
+      return "See review";
+    }
+  }
 
   //input search
   buttonSubmit.addEventListener("click", function (e) {
@@ -107,29 +130,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /*make a fetch request to BOOKS API 
   - returns a promise which is fulfilled with a response object*/
-  const getBookFromGoogle = async (param) => {
+  async function getBookFromGoogle(param) {
     try {
       const response = await fetch(`${bookURL}${param}&key=${apiKey}`);
       // it is necessary to extract the body of the response, with '.json()'
       const data = await response.json();
       //'books' will contain an array with all the results received from the fetch request in the shape of objects
       books = data.items;
+      console.log(books);
 
       //display the results of the search
       for (let i = 0; i < books.length; i += 2) {
         book = books[i].volumeInfo;
-        console.log(book);
         title = book.title;
         author = book.authors[0];
         bookLink = book.previewLink;
-        bookImg = book.imageLinks.thumbnail;
+        bookImg = book.imageLinks?.thumbnail;
         bookDescription = book.description;
 
         book2 = books[i + 1].volumeInfo;
         title2 = book2.title;
         author2 = book2.authors[0];
         bookLink2 = book2.previewLink;
-        bookImg2 = book2.imageLinks.thumbnail;
+        bookImg2 = book2.imageLinks?.thumbnail;
         bookDescription2 = book2.description;
 
         booksResult.innerHTML +=
@@ -143,8 +166,6 @@ document.addEventListener("DOMContentLoaded", function () {
             bookDescription2
           ) +
           "</div>";
-
-        console.log(booksResult);
       }
     } catch (e) {
       console.log("ERROR", e);
@@ -153,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
         errorMessage.style.display = "none";
       });
     }
-  };
+  }
 
   //format the htmlCard
   function formatResultsHTML(title, author, bookLink, bookImg, description) {
@@ -172,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
               View description</button>
               <a target="_blank" href="${bookLink}" class="btn px-0">View book</a>
             </div>
-            <button type="button" class="add-to-library" style="color: rgb(58, 9, 58)"  data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
+            <button type="button" class="add-to-library" style="color: rgb(215, 201, 201)" data-link="${bookLink}" data-title="${title}" data-img="${bookImg}" data-author="${author}">&hearts; 
             </button>
           </div>
         </div>
@@ -213,8 +234,8 @@ document.addEventListener("DOMContentLoaded", function () {
   booksResult.addEventListener("click", function (event) {
     let positionClick = event.target;
     if (positionClick.classList.contains("add-to-library")) {
-      if (positionClick.style.color == "rgb(58, 9, 58)") {
-        positionClick.style.color = "white";
+      if (positionClick.style.color === "rgb(215, 201, 201)") {
+        positionClick.style.color = "rgb(58, 9, 58)";
         let selectedBookTitle = positionClick.getAttribute("data-title");
         let selectedBookAuthor = positionClick.getAttribute("data-author");
         let selectedBookImg = positionClick.getAttribute("data-img");
@@ -232,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
         addLibraryToMemory();
         addCardToLibraryHTML(selectedBookTitle);
       } else {
-        positionClick.style.color = "rgb(58, 9, 58)";
+        positionClick.style.color = "rgb(215, 201, 201)";
         let selectedBookTitleDeleted = positionClick.getAttribute("data-title");
         let indexOfBookToBeRemoved = library.findIndex(
           (e) => e.title === selectedBookTitleDeleted
@@ -288,19 +309,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (positionClickRemove.classList.contains("remove-element")) {
       //removes the card containing the book from HTML
       let selectedBookToBeDeletedHTML =
-        positionClickRemove.parentNode.parentNode;
+        positionClickRemove.parentNode.parentNode.parentNode;
       selectedBookToBeDeletedHTML.remove();
       //find the title of the selected card in the 'library' array and remove it;
       let selectedBookTitleD =
         positionClickRemove.previousElementSibling.previousElementSibling
-          .innerHTML;
+          .previousElementSibling.innerHTML;
+      console.log(selectedBookTitleD);
       let indexOfBookToBeRemoved = library.findIndex(
         (e) => e.title === selectedBookTitleD
       );
       library.splice(indexOfBookToBeRemoved, 1);
       //update session storage
       addLibraryToMemory();
-      location.reload();
     }
   });
 
@@ -309,7 +330,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let reviewTitle = document.querySelector(".textAreaLabel");
   let reviewTextArea = document.querySelector(".textArea");
   let saveReviewButton = document.querySelector(".save-review-button");
-  let editReviewButton = document.querySelector(".edit-review-button");
 
   /*find the 'write a review' button that was clicked, get the title of the book
   and the review using the getReview() function */
@@ -339,7 +359,6 @@ document.addEventListener("DOMContentLoaded", function () {
     //change the text content and the color of the button that opens the modal, if there is content inside
     saveReviewButton.addEventListener("click", function () {
       positionClickAdd.textContent = "See review";
-      positionClickAdd.style.color = "rgb(158, 119, 143)";
     });
   });
 
